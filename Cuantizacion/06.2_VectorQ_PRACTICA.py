@@ -16,23 +16,56 @@ plt.figure()
 plt.imshow(imagen, cmap=plt.cm.gray)
 plt.show()
 #%%
+def deconstruir(im,size,b):
+    step=size//b
+    imtmp=[[] for x in range(step*step)]
+    for i in range(size):
+        for j in range(size):
+            ib=(i//8)*step+(j//8)
+            imtmp[ib]=imtmp[ib]+[im[i][j]]
+    return imtmp
 
-generarCodebook(im,k=512,b=8):
-    res=[]
-    imtmp=[]
-    for v in im:
-        v8=v.split(k/b);
-        imtmp=imtmp+[v8]
-    bloque=[]
-    for i in range(0,k+1):
-        for j in range(0,(k/b)+1):
+def construir(vect,size,b):
+    step=size//b
+    res=[[] for x in range(size)]#vector de 512 posiciones que rellenaremos
+    apuntadorb=0
+    apuntador=0
+    vtmp=vect
+    for i in range(len(res)):
+        for j in range(len(res)):
+            
+            
+            if apuntador == b :
+                apuntador=0
+                apuntadorb+=1
+            if apuntadorb == step :
+                apuntador=0
+                apuntadorb=0
+                
+            res[i].append(vtmp[apuntadorb].pop(0))
+            
+            if len(vtmp[apuntadorb])==0:
+                vtmp[apuntadorb].pop(apuntador)
+                
+            apuntador+=1
+                
+            
+def generarCodebook(im,size=512,b=8,k=512):
+    imtmp=deconstruir(im,size,b)
+    imrec=construir(imtmp,size,b)
+    plt.figure()    
+    plt.imshow(imagen, cmap=plt.cm.gray)
+    plt.show()
+    return imtmp        
+    #print(imtmp)
+    #print("MOvida len:", len(imtmp))
+    #return scipy.kmeans(res,512)
+
+generarCodebook(imagen)
+#code(im):
     
-    return scipy.kmeans(res,512)
 
-code(im):
-    
-
-decode(imd):           
+#decode(imd):           
 """
 Usando K-means http://docs.scipy.org/doc/scipy/reference/cluster.vq.html
 crear un diccionario cuyas palabras sean bloques 8x8 con 512 entradas 
