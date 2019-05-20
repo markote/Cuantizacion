@@ -10,21 +10,33 @@ import scipy.ndimage
 from scipy.cluster.vq import vq, kmeans
 
 #%%
-imagen=scipy.misc.imread('../Standard test images-20190515/house.png')
-(n,m)=imagen.shape # filas y columnas de la imagen
-plt.figure()    
-plt.imshow(imagen, cmap=plt.cm.gray)
-plt.show()
+#imagen=scipy.misc.imread('../Standard test images-20190515/house.png')
+#(n,m)=imagen.shape # filas y columnas de la imagen
+#plt.figure()    
+#plt.imshow(imagen, cmap=plt.cm.gray)
+#plt.show()
 #%%
+
 def deconstruir(im,size,b):
     step=size//b
     imtmp=[[] for x in range(step*step)]
+    print("movida",str(imtmp))
     for i in range(size):
         for j in range(size):
-            ib=(i//8)*step+(j//8)
+            ib=(i//b)*step+(j//b)
             imtmp[ib]=imtmp[ib]+[im[i][j]]
     return imtmp
 
+def eliminarvacios(vec):
+    count=0
+    for x in vec:
+        if len(x)==0 :
+            count=count+1
+    for i in range(count):
+        vec.pop(0)
+        
+    return vec
+    
 def construir(vect,size,b):
     step=size//b
     res=[[] for x in range(size)]#vector de 512 posiciones que rellenaremos
@@ -34,35 +46,34 @@ def construir(vect,size,b):
     for i in range(len(res)):
         for j in range(len(res)):
             
-            
             if apuntador == b :
                 apuntador=0
                 apuntadorb+=1
+                
             if apuntadorb == step :
+                vtmp=eliminarvacios(vtmp)
                 apuntador=0
                 apuntadorb=0
-                
+            
             res[i].append(vtmp[apuntadorb].pop(0))
             
-            if len(vtmp[apuntadorb])==0:
-                vtmp[apuntadorb].pop(apuntador)
-                
             apuntador+=1
-                
-            
+    
+    return res
+    
 def generarCodebook(im,size=512,b=8,k=512):
-    imtmp=deconstruir(im,size,b)
-    imrec=construir(imtmp,size,b)
-    plt.figure()    
-    plt.imshow(imagen, cmap=plt.cm.gray)
-    plt.show()
-    return imtmp        
-    #print(imtmp)
+    #imtmp=deconstruir(im,size,b)
+    #imrec=construir(imtmp,size,b)
+    imtmp=construir([[1,1,1,2,2,2,3,3,3],[1,1,1,2,2,2,3,3,3],[1,1,1,2,2,2,3,3,3],[1,1,1,2,2,2,3,3,3]],6,3)
+    #plt.figure()    
+    #plt.imshow(imtmp, cmap=plt.cm.gray)
+    #plt.show()
+    #return imtmp        
+    print(imtmp)
     #print("MOvida len:", len(imtmp))
     #return scipy.kmeans(res,512)
 
 generarCodebook(imagen)
-#code(im):
     
 
 #decode(imd):           
