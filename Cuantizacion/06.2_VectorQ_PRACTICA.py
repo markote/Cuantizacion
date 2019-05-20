@@ -62,21 +62,48 @@ def construir(vect,size,b):
     return res
     
 def generarCodebook(im,size=512,b=8,k=512):
-    #imtmp=deconstruir(im,size,b)
+    res=deconstruir(im,size,b)
+    
     #imrec=construir(imtmp,size,b)
-    imtmp=construir([[1,1,1,2,2,2,3,3,3],[1,1,1,2,2,2,3,3,3],[1,1,1,2,2,2,3,3,3],[1,1,1,2,2,2,3,3,3]],6,3)
+    #imtmp=construir([[1,1,1,2,2,2,3,3,3],[1,1,1,2,2,2,3,3,3],[1,1,1,2,2,2,3,3,3],[1,1,1,2,2,2,3,3,3]],6,3)
     #plt.figure()    
     #plt.imshow(imtmp, cmap=plt.cm.gray)
     #plt.show()
     #return imtmp        
-    print(imtmp)
+    #print(imtmp)
     #print("MOvida len:", len(imtmp))
-    #return scipy.kmeans(res,512)
+    return scipy.kmeans(res,k)
 
-generarCodebook(imagen)
+dic=generarCodebook(imagen)
+
+def distance(v1,v2):
+    result=0
+    for i in range(len(v1)):
+        result=result+pow(v1[i]-v2[i],2)
+    result=sqrt(result)
+
+def compresion(im,dic,size=512):
+    imdec=deconstruir(im)
+    imres=[]
+    for dvec in imdec:
+        dist=distance(imdec[0],dvec)
+        imres.append(0)
+        for i in range(1,size):
+            tmpdist=distance(imdec[i],dvec)
+            if tmpdist<dist:
+                dist=tmpdist
+                imres[len(imres)-1]=i
+    return imres
     
-
-#decode(imd):           
+def decompresion(imd,dic,size=512,b=8):
+    tmpim=[]
+    for i in imd:
+        tmpim.append(dic[i])
+    im=construir(imd,size,b)
+    plt.figure()    
+    plt.imshow(im, cmap=plt.cm.gray)
+    plt.show()
+    return im
 """
 Usando K-means http://docs.scipy.org/doc/scipy/reference/cluster.vq.html
 crear un diccionario cuyas palabras sean bloques 8x8 con 512 entradas 
