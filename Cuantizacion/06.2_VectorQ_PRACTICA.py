@@ -11,16 +11,16 @@ import math
 from scipy.cluster.vq import vq, kmeans
 
 #%%
-imagenHome=scipy.misc.imread('../Standard test images-20190515/house.png')
-(n,m)=imagenHome.shape # filas y columnas de la imagen
+imagenHouse=scipy.misc.imread('../Standard test images-20190515/house.png')
+(n,m)=imagenHouse.shape # filas y columnas de la imagen
 plt.figure()    
-plt.imshow(imagenHome, cmap=plt.cm.gray)
+plt.imshow(imagenHouse, cmap=plt.cm.gray)
 plt.show()
 
-imagenHome=scipy.misc.imread('../Standard test images-20190515/cameraman.png')
-(n,m)=imagenHome.shape # filas y columnas de la imagen
+imagenMan=scipy.misc.imread('../Standard test images-20190515/cameraman.png')
+(n,m)=imagenMan.shape # filas y columnas de la imagen
 plt.figure()    
-plt.imshow(imagenHome, cmap=plt.cm.gray)
+plt.imshow(imagenMan, cmap=plt.cm.gray)
 plt.show()
 #%%
 
@@ -59,16 +59,7 @@ def construir(vect,size,b):
             if apuntadorb == step :
                 vtmp=eliminarvacios(vtmp)
                 apuntador=0
-                apuntadorb=0
-
-            #print("vtmp:")
-            #print(vtmp)
-            #print("vtmp:")
-            #print(vtmp[apuntadorb])
-            #print("vtmp apuntador")
-            #print(apuntadorb)
-            #print("Apuntador")
-            #print("i:"+str(i)+"j:"+str(j))            
+                apuntadorb=0           
             
             res[i].append(vtmp[apuntadorb].pop(0))
             
@@ -81,24 +72,11 @@ def generarCodebook(im,size=512,b=8,k=512):
     for i in range(len(res)):
         for j in range(len(res[i])):
             res[i][j]=float(res[i][j])
-    #imrec=construir(imtmp,size,b)
-    #imtmp=construir([[1,1,1,2,2,2,3,3,3],[1,1,1,2,2,2,3,3,3],[1,1,1,2,2,2,3,3,3],[1,1,1,2,2,2,3,3,3]],6,3)
-    #return imtmp        
-    #print(imtmp)
-    #print("MOvida len:", len(imtmp))
     res=scipy.cluster.vq.kmeans(res,k)
     return res[0]
-
-def distance(v1,v2):
-    result=0
-    for i in range(len(v1)):
-        result=result+pow(v1[i]-v2[i],2)
     
-    return result
-
 def compresion(im,dic,size=512,b=8):
     imdec=deconstruir(im,size,b)
-    imres=[]
     imres=vq(imdec,dic)
     return imres
     
@@ -106,34 +84,42 @@ def decompresion(imd,dic,size=512,b=8):
     tmpim=[]
     for i in imd:
         tmpim.append(dic[i])
-    print("tmpim: ")
+    pp=(np.zeros(((size*size)//(b*b),size//b),dtype=int)).tolist()
+    for i in range(len(pp)):
+        for j in range(len(pp[i])):
+            pp[i][j]=int( tmpim[i][j])
+            
     
-    return tmpim
-    #im=construir(tmpim,size,b)
-    #plt.figure()    
-    #plt.imshow(im, cmap=plt.cm.gray)
-    #plt.show()
-    #return (imd,tmpim)
-    
-prueba=deconstruir(imagenHome,512,8)
-#prueba2=construir(prueba,512,8)
-print("Polla morena")
-dic=generarCodebook(imagenHome).tolist()
-imagencomp,errores=compresion(imagenHome,dic)
-errores=decompresion(imagencomp,dic)
+    return construir(pp,size,b)
+
+
+print("House con house")
+dic=generarCodebook(imagenHouse).tolist()
+imagencomp,errores=compresion(imagenHouse,dic)
+imagenHouseRecons=decompresion(imagencomp,dic)
+plt.figure()    
+plt.imshow(imagenHouseRecons, cmap=plt.cm.gray)
+plt.show()
 print("End")
 
-for i in range(len(prueba)):
-    for j in range(len(prueba[i])):
-        prueba[i][j]=int( errores[i][j])
-
-print("End 2")
-
-imagenHomeRecons=construir(prueba,512,8)
+print("Cameraman con cameraman")
+dic=generarCodebook(imagenMan).tolist()
+imagencomp,errores=compresion(imagenMan,dic)
+imagenManRecons=decompresion(imagencomp,dic)
 plt.figure()    
-plt.imshow(imagenHomeRecons, cmap=plt.cm.gray)
+plt.imshow(imagenManRecons, cmap=plt.cm.gray)
 plt.show()
-print("End 3")
+print("End")
+
+print("Cameraman con house")
+dic=generarCodebook(imagenHouse).tolist()
+imagencomp,errores=compresion(imagenMan,dic)
+imagenManRecons=decompresion(imagencomp,dic)
+plt.figure()    
+plt.imshow(imagenManRecons, cmap=plt.cm.gray)
+plt.show()
+print("End")
+
 """
 Usando K-means http://docs.scipy.org/doc/scipy/reference/cluster.vq.html
 crear un diccionario cuyas palabras sean bloques 8x8 con 512 entradas 
